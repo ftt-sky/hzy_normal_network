@@ -4,7 +4,7 @@ version: 0.0.1
 homepage: https://gitee.com/tengteng_fan/hzy_normal_network.git
 
 environment:
-  sdk: ">=2.18.2 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:

@@ -4,8 +4,10 @@
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 15:54:51
+ * @LastEditTime: 2022-11-23 22:31:20
  */
+
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
