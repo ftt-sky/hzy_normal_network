@@ -4,34 +4,68 @@
  * @Author: TT
  * @Date: 2022-11-02 21:56:29
  * @LastEditors: TT
- * @LastEditTime: 2022-11-02 21:56:30
+ * @LastEditTime: 2022-11-23 22:33:04
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hzy_normal_widget/hzy_normal_widget.dart';
-import 'package:lottie/lottie.dart';
 
 import '../config/dataconfig/data_config_index.dart';
 
 /// 创建加载动画
 Widget createLoadWidget() {
-  return LottieBuilder.asset(
-    "assets/json/loading.json",
-    width: 150.w,
-    height: 150.w,
-    alignment: Alignment.center,
+  return Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 100.w,
+          height: 100.w,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(
+              10.r,
+            ),
+            color: Colors.white,
+            boxShadow: [
+              configShadow(),
+            ],
+          ),
+          child: Column(
+            children: [
+              Image.asset(
+                "assets/images/loadingg.gif",
+                fit: BoxFit.scaleDown,
+                width: 60.w,
+                height: 60.w,
+              ),
+              Text(
+                "加载中...",
+                style: FontConfig().fontBold12Black,
+              )
+            ],
+          ),
+        )
+      ],
+    ),
   );
 }
 
 // 空数据动图
+// 空数据动图
 Widget createNoDataWidget() {
-  return LottieBuilder.asset(
-    "assets/json/empty3.json",
-    fit: BoxFit.contain,
-    alignment: Alignment.center,
+  return Container(
     width: 200.w,
     height: 200.w,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(
+        10,
+      ),
+    ),
+    child: Image.asset(
+      "assets/images/img-record.png",
+      fit: BoxFit.scaleDown,
+    ),
   );
 }
 
