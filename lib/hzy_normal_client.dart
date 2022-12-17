@@ -4,8 +4,10 @@
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 15:54:51
+ * @LastEditTime: 2022-11-28 22:40:26
  */
+
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -39,12 +41,16 @@ class HzyNormalClient {
     Dio dio = Dio(options);
     if (kDebugMode) {
       dio.interceptors.add(LogInterceptor(
-          responseBody: true,
-          error: true,
-          requestHeader: false,
-          responseHeader: false,
-          request: true,
-          requestBody: true));
+        responseBody: true,
+        error: true,
+        requestHeader: false,
+        responseHeader: false,
+        request: true,
+        requestBody: true,
+        logPrint: (object) {
+          log(object.toString());
+        },
+      ));
     }
     if (normalHttpConfig?.interceptors?.isNotEmpty ?? false) {
       dio.interceptors.addAll(normalHttpConfig!.interceptors!);

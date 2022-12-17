@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:26:14
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 16:02:03
+ * @LastEditTime: 2022-11-28 22:19:53
  */
 
 import 'package:hzy_normal_network/hzy_normal_exception.dart';
@@ -16,8 +16,12 @@ class HzyNormalResponse {
   HzyNormalExceeption? error;
   Map<String, dynamic>? response;
 
-  HzyNormalResponse.success(
-      {required this.data, Map<String, dynamic>? response, String? reqmsg}) {
+  HzyNormalResponse.success({
+    required dynamic netdata,
+    Map<String, dynamic>? response,
+    String? reqmsg,
+  }) {
+    data = netdata;
     msg = reqmsg;
     ok = true;
     if (response != null) {

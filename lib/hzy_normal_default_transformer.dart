@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:50:41
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 11:14:35
+ * @LastEditTime: 2022-11-28 22:23:25
  */
 import 'package:dio/dio.dart';
 import 'package:hzy_normal_network/hzy_normal_response.dart';
@@ -62,7 +62,7 @@ class HzyNormalDefaultTransFormer extends HzyNormalTransFormer {
     }
     if (code == 1) {
       return HzyNormalResponse.success(
-        data: json[_datakey] ?? json,
+        netdata: json[_datakey],
         response: json,
         reqmsg: json[_msgkey],
       );
