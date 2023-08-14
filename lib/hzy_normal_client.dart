@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
  * @LastEditors: TT
- * @LastEditTime: 2022-12-17 10:19:11
+ * @LastEditTime: 2023-08-14 15:44:28
  */
 
 import 'dart:developer';
@@ -35,8 +35,8 @@ class HzyNormalClient {
     options ??= BaseOptions(
       baseUrl: normalHttpConfig?.baseUrl ?? "",
       contentType: 'application/json',
-      sendTimeout: normalHttpConfig?.sendTimeout,
-      receiveTimeout: normalHttpConfig?.receiveTimeout,
+      sendTimeout: Duration(seconds: normalHttpConfig?.sendTimeout ?? 30),
+      receiveTimeout: Duration(seconds: normalHttpConfig?.receiveTimeout ?? 30),
     );
     Dio dio = Dio(options);
     if (kDebugMode) {
@@ -75,7 +75,9 @@ class HzyNormalClient {
         onReceiveProgress: onReceiveProgress,
       );
       return handleResponse(
-          response: response, hzyNormalTransFormer: httpTransformer);
+        response: response,
+        hzyNormalTransFormer: httpTransformer,
+      );
     } on Exception catch (e) {
       return HzyNormalResponse.fail(
         data: e,
@@ -85,14 +87,16 @@ class HzyNormalClient {
     }
   }
 
-  Future<HzyNormalResponse> post(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      ProgressCallback? onSendProgress,
-      ProgressCallback? onReceiveProgress,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<HzyNormalResponse> post(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     try {
       var response = await _noramlDio.post(
         uri,
@@ -104,20 +108,24 @@ class HzyNormalClient {
         onReceiveProgress: onReceiveProgress,
       );
       return handleResponse(
-          response: response, hzyNormalTransFormer: httpTransformer);
+        response: response,
+        hzyNormalTransFormer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(e);
     }
   }
 
-  Future<HzyNormalResponse> patch(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      ProgressCallback? onSendProgress,
-      ProgressCallback? onReceiveProgress,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<HzyNormalResponse> patch(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     try {
       var response = await _noramlDio.patch(
         uri,
@@ -129,18 +137,22 @@ class HzyNormalClient {
         onReceiveProgress: onReceiveProgress,
       );
       return handleResponse(
-          response: response, hzyNormalTransFormer: httpTransformer);
+        response: response,
+        hzyNormalTransFormer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(e);
     }
   }
 
-  Future<HzyNormalResponse> delete(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<HzyNormalResponse> delete(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     try {
       var response = await _noramlDio.delete(
         uri,
@@ -150,18 +162,22 @@ class HzyNormalClient {
         cancelToken: cancelToken,
       );
       return handleResponse(
-          response: response, hzyNormalTransFormer: httpTransformer);
+        response: response,
+        hzyNormalTransFormer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(e);
     }
   }
 
-  Future<HzyNormalResponse> put(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<HzyNormalResponse> put(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     try {
       var response = await _noramlDio.put(
         uri,
@@ -171,21 +187,26 @@ class HzyNormalClient {
         cancelToken: cancelToken,
       );
       return handleResponse(
-          response: response, hzyNormalTransFormer: httpTransformer);
+        response: response,
+        hzyNormalTransFormer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(e);
     }
   }
 
-  Future<Response> download(String urlPath, savePath,
-      {ProgressCallback? onReceiveProgress,
-      Map<String, dynamic>? queryParameters,
-      CancelToken? cancelToken,
-      bool deleteOnError = true,
-      String lengthHeader = Headers.contentLengthHeader,
-      data,
-      Options? options,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<Response> download(
+    String urlPath,
+    savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    data,
+    Options? options,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     try {
       var response = await _noramlDio.download(
         urlPath,
@@ -204,11 +225,14 @@ class HzyNormalClient {
     }
   }
 
-  Future<HzyNormalResponse> uploadImage(String uri, Uint8List image,
-      {Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      HzyNormalTransFormer? httpTransformer}) async {
+  Future<HzyNormalResponse> uploadImage(
+    String uri,
+    Uint8List image, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HzyNormalTransFormer? httpTransformer,
+  }) async {
     Map<String, dynamic> map = {};
     if (queryParameters != null) {
       map.addAll(queryParameters);
@@ -222,7 +246,10 @@ class HzyNormalClient {
         options: options,
         cancelToken: cancelToken,
       );
-      return handleResponse(response: response, hzyNormalTransFormer: null);
+      return handleResponse(
+        response: response,
+        hzyNormalTransFormer: null,
+      );
     } on Exception catch (e) {
       return handleException(e);
     }

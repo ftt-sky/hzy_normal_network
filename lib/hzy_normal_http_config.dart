@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:08:29
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 10:08:29
+ * @LastEditTime: 2023-08-14 15:40:57
  */
 /*
  * @Descripttion: 
@@ -32,8 +32,8 @@ class HzyNormalHttpConfig {
     this.proxy,
     this.cookiesPath,
     this.interceptors,
-    this.connectTimeout = 10000,
-    this.sendTimeout = 10000,
-    this.receiveTimeout = 10000,
+    this.connectTimeout = 30,
+    this.sendTimeout = 30,
+    this.receiveTimeout = 30,
   });
 }

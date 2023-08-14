@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:47:37
  * @LastEditors: TT
- * @LastEditTime: 2022-11-08 16:06:15
+ * @LastEditTime: 2023-08-14 15:51:21
  */
 
 import 'dart:io';
@@ -27,10 +27,14 @@ HzyNormalResponse handleResponse(
       errorCode: -1,
     );
   }
-  // token失效
+
   if (_isTokenTimeout(response.statusCode)) {
     return HzyNormalResponse.failureFromError(
-        UnauthorisedException(message: "没有权限", code: response.statusCode));
+      UnauthorisedException(
+        message: "没有权限",
+        code: response.statusCode,
+      ),
+    );
   }
 
   // 接口调用成功
@@ -60,18 +64,21 @@ bool _isRequestSuccess(int? statusCode) {
 }
 
 HzyNormalExceeption _parseException(Exception error) {
-  if (error is DioError) {
+  if (error is DioException) {
     try {
       switch (error.type) {
-        case DioErrorType.connectTimeout:
+        case DioExceptionType.connectionTimeout:
           return NetworkException(message: "网络连接超时");
-        case DioErrorType.receiveTimeout:
-          return NetworkException(message: "数据接收超时");
-        case DioErrorType.sendTimeout:
+        case DioExceptionType.sendTimeout:
           return NetworkException(message: "请求发送超时");
-        case DioErrorType.cancel:
-          return CancelException(error.error.message);
-        case DioErrorType.response:
+        case DioExceptionType.receiveTimeout:
+          return NetworkException(message: "数据接收超时");
+        case DioExceptionType.badCertificate:
+          return NetworkException(message: "证书不正确");
+        case DioExceptionType.cancel:
+          return CancelException(error.message);
+
+        case DioExceptionType.badResponse:
           int? errCode = error.response?.statusCode;
           switch (errCode) {
             case 400:
@@ -94,10 +101,9 @@ HzyNormalExceeption _parseException(Exception error) {
               return UnauthorisedException(
                   message: "不支持HTTP协议请求", code: errCode);
             default:
-              return UnknownException(error.error.message);
+              return UnknownException(error.message);
           }
-
-        case DioErrorType.other:
+        case DioExceptionType.unknown:
           if (error.error is SocketException) {
             return NetworkException(message: error.message);
           } else {
@@ -107,7 +113,6 @@ HzyNormalExceeption _parseException(Exception error) {
           return UnknownException(error.message);
       }
     } catch (e) {
-      // error.message 可能会异常
       return UnknownException(error.toString());
     }
   } else {
