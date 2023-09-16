@@ -26,12 +26,17 @@ class HzyNormalHttpConfig {
   final int connectTimeout;
   final int sendTimeout;
   final int receiveTimeout;
+  final bool isNeedLog;
 
+  /// 网络缓存 状态值
+  final int caCheStatusCode;
   HzyNormalHttpConfig({
     this.baseUrl,
     this.proxy,
     this.cookiesPath,
     this.interceptors,
+    this.isNeedLog = true,
+    this.caCheStatusCode = 304,
     this.connectTimeout = 30,
     this.sendTimeout = 30,
     this.receiveTimeout = 30,

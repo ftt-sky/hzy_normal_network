@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:47:37
  * @LastEditors: TT
- * @LastEditTime: 2023-08-14 15:51:21
+ * @LastEditTime: 2023-09-13 15:31:39
  */
 
 import 'dart:io';
@@ -16,8 +16,11 @@ import 'package:hzy_normal_network/hzy_normal_transformer.dart';
 
 import 'hzy_normal_exception.dart';
 
-HzyNormalResponse handleResponse(
-    {Response? response, HzyNormalTransFormer? hzyNormalTransFormer}) {
+HzyNormalResponse handleResponse({
+  Response? response,
+  HzyNormalTransFormer? hzyNormalTransFormer,
+  int caCheStatusCode = 304,
+}) {
   hzyNormalTransFormer ??= HzyNormalDefaultTransFormer.getInstance();
 
   if (response == null) {
@@ -38,7 +41,10 @@ HzyNormalResponse handleResponse(
   }
 
   // 接口调用成功
-  if (_isRequestSuccess(response.statusCode)) {
+  if (_isRequestSuccess(
+    response.statusCode,
+    caCheStatusCode,
+  )) {
     return hzyNormalTransFormer.parse(response);
   } else {
     // 接口调用失败
@@ -59,8 +65,9 @@ bool _isTokenTimeout(int? code) {
 }
 
 /// 请求成功
-bool _isRequestSuccess(int? statusCode) {
-  return (statusCode != null && statusCode >= 200 && statusCode < 300);
+bool _isRequestSuccess(int? statusCode, int caCheStatusCode) {
+  return ((statusCode != null && statusCode >= 200 && statusCode < 300) ||
+      statusCode == caCheStatusCode);
 }
 
 HzyNormalExceeption _parseException(Exception error) {

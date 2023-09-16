@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
  * @LastEditors: TT
- * @LastEditTime: 2023-08-14 15:44:28
+ * @LastEditTime: 2023-09-13 15:35:19
  */
 
 import 'dart:developer';
@@ -18,15 +18,18 @@ import 'package:hzy_normal_network/hzy_normal_response.dart';
 import 'hzy_normal_transformer.dart';
 
 class HzyNormalClient {
-  static const defaultClientTag = "";
-
+  static const defaultClientTag = "hzy_normal_network";
+  final HzyNormalHttpConfig? _normalHttpConfig;
   late final Dio _noramlDio;
-
+  Dio get dio => _noramlDio;
   HzyNormalClient({
     BaseOptions? options,
     HzyNormalHttpConfig? normalHttpConfig,
-  }) : _noramlDio =
-            createDio(options: options, normalHttpConfig: normalHttpConfig);
+  })  : _normalHttpConfig = normalHttpConfig,
+        _noramlDio = createDio(
+          options: options,
+          normalHttpConfig: normalHttpConfig,
+        );
 
   static Dio createDio({
     BaseOptions? options,
@@ -39,7 +42,7 @@ class HzyNormalClient {
       receiveTimeout: Duration(seconds: normalHttpConfig?.receiveTimeout ?? 30),
     );
     Dio dio = Dio(options);
-    if (kDebugMode) {
+    if (kDebugMode && normalHttpConfig?.isNeedLog == true) {
       dio.interceptors.add(LogInterceptor(
         responseBody: true,
         error: true,
@@ -77,6 +80,7 @@ class HzyNormalClient {
       return handleResponse(
         response: response,
         hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return HzyNormalResponse.fail(
@@ -110,6 +114,7 @@ class HzyNormalClient {
       return handleResponse(
         response: response,
         hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return handleException(e);
@@ -139,6 +144,7 @@ class HzyNormalClient {
       return handleResponse(
         response: response,
         hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return handleException(e);
@@ -164,6 +170,7 @@ class HzyNormalClient {
       return handleResponse(
         response: response,
         hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return handleException(e);
@@ -189,6 +196,7 @@ class HzyNormalClient {
       return handleResponse(
         response: response,
         hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return handleException(e);
@@ -248,7 +256,8 @@ class HzyNormalClient {
       );
       return handleResponse(
         response: response,
-        hzyNormalTransFormer: null,
+        hzyNormalTransFormer: httpTransformer,
+        caCheStatusCode: _normalHttpConfig?.caCheStatusCode ?? 304,
       );
     } on Exception catch (e) {
       return handleException(e);
