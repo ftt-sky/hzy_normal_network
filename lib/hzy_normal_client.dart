@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
  * @LastEditors: TT
- * @LastEditTime: 2023-09-13 15:35:19
+ * @LastEditTime: 2023-10-09 14:13:24
  */
 
 import 'dart:developer';
@@ -40,13 +40,18 @@ class HzyNormalClient {
       contentType: 'application/json',
       sendTimeout: Duration(seconds: normalHttpConfig?.sendTimeout ?? 30),
       receiveTimeout: Duration(seconds: normalHttpConfig?.receiveTimeout ?? 30),
+      headers: normalHttpConfig?.headers,
     );
     Dio dio = Dio(options);
+
+    if (normalHttpConfig?.interceptors?.isNotEmpty ?? false) {
+      dio.interceptors.addAll(normalHttpConfig!.interceptors!);
+    }
     if (kDebugMode && normalHttpConfig?.isNeedLog == true) {
       dio.interceptors.add(LogInterceptor(
         responseBody: true,
         error: true,
-        requestHeader: false,
+        requestHeader: true,
         responseHeader: false,
         request: true,
         requestBody: true,
@@ -54,9 +59,6 @@ class HzyNormalClient {
           log(object.toString());
         },
       ));
-    }
-    if (normalHttpConfig?.interceptors?.isNotEmpty ?? false) {
-      dio.interceptors.addAll(normalHttpConfig!.interceptors!);
     }
     return dio;
   }

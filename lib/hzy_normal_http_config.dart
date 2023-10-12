@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:08:29
  * @LastEditors: TT
- * @LastEditTime: 2023-08-14 15:40:57
+ * @LastEditTime: 2023-10-09 14:11:27
  */
 /*
  * @Descripttion: 
@@ -27,12 +27,14 @@ class HzyNormalHttpConfig {
   final int sendTimeout;
   final int receiveTimeout;
   final bool isNeedLog;
+  final Map<String, dynamic>? headers;
 
   /// 网络缓存 状态值
   final int caCheStatusCode;
   HzyNormalHttpConfig({
     this.baseUrl,
     this.proxy,
+    this.headers,
     this.cookiesPath,
     this.interceptors,
     this.isNeedLog = true,
