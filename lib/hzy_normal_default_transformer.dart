@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:50:41
  * @LastEditors: TT-hzy 
- * @LastEditTime: 2024-06-05 15:09:36
+ * @LastEditTime: 2024-06-05 15:29:59
  */
 import 'package:dio/dio.dart';
 import 'package:hzy_normal_network/hzy_normal_response.dart';
@@ -63,17 +63,19 @@ class HzyNormalDefaultTransFormer extends HzyNormalTransFormer {
     } else {
       if (status == _successCode) {
         code = 1;
+      } else {
+        code = status;
       }
     }
     if (code == 1) {
       return HzyNormalResponse.success(
         netData: json[_dataKey],
         response: json,
-        reqMsg: json[_msgKey],
+        reqMsg: json[_msgKey] ?? "",
       );
     }
     return HzyNormalResponse.fail(
-      errorMsg: (json[_msgKey] != null) ? json[_msgKey] : "",
+      errorMsg: json[_msgKey] ?? "",
       errorCode: code,
       data: json[_dataKey] ?? json,
     );

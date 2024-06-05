@@ -4,22 +4,22 @@
  * @Author: TT
  * @Date: 2022-11-08 10:26:14
  * @LastEditors: TT-hzy 
- * @LastEditTime: 2024-06-05 15:11:37
+ * @LastEditTime: 2024-06-05 15:19:01
  */
 
 import 'package:hzy_normal_network/hzy_normal_exception.dart';
 
 class HzyNormalResponse {
   late bool ok;
-  dynamic data;
-  String? msg;
+  late dynamic data;
+  late String msg;
   HzyNormalExceeption? error;
   Map<String, dynamic>? response;
 
   HzyNormalResponse.success({
     required dynamic netData,
     Map<String, dynamic>? response,
-    String? reqMsg,
+    required String reqMsg,
   }) {
     data = netData;
     msg = reqMsg;
@@ -35,7 +35,7 @@ class HzyNormalResponse {
     int? errorCode = 404,
     Map<String, dynamic>? response,
   }) {
-    msg = errorMsg;
+    msg = errorMsg ?? "网络请求失败";
     error = HzyNormalExceeption(msg, errorCode);
     ok = false;
   }
