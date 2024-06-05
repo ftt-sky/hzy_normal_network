@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:08:29
- * @LastEditors: TT
- * @LastEditTime: 2023-10-09 14:11:27
+ * @LastEditors: TT-hzy 
+ * @LastEditTime: 2024-06-05 15:07:37
  */
 /*
  * @Descripttion: 
@@ -29,11 +29,14 @@ class HzyNormalHttpConfig {
   final bool isNeedLog;
   final Map<String, dynamic>? headers;
 
+  final String contentType;
+
   /// 网络缓存 状态值
   final int caCheStatusCode;
   HzyNormalHttpConfig({
     this.baseUrl,
     this.proxy,
+    this.contentType = "application/json",
     this.headers,
     this.cookiesPath,
     this.interceptors,

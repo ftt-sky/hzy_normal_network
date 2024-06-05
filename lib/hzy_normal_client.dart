@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:12:39
- * @LastEditors: TT
- * @LastEditTime: 2023-10-09 14:13:24
+ * @LastEditors: TT-hzy 
+ * @LastEditTime: 2024-06-05 15:08:10
  */
 
 import 'dart:developer';
@@ -37,7 +37,7 @@ class HzyNormalClient {
   }) {
     options ??= BaseOptions(
       baseUrl: normalHttpConfig?.baseUrl ?? "",
-      contentType: 'application/json',
+      contentType: normalHttpConfig?.contentType,
       sendTimeout: Duration(seconds: normalHttpConfig?.sendTimeout ?? 30),
       receiveTimeout: Duration(seconds: normalHttpConfig?.receiveTimeout ?? 30),
       headers: normalHttpConfig?.headers,

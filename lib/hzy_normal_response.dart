@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:26:14
- * @LastEditors: TT
- * @LastEditTime: 2022-11-28 22:19:53
+ * @LastEditors: TT-hzy 
+ * @LastEditTime: 2024-06-05 15:11:37
  */
 
 import 'package:hzy_normal_network/hzy_normal_exception.dart';
@@ -17,12 +17,12 @@ class HzyNormalResponse {
   Map<String, dynamic>? response;
 
   HzyNormalResponse.success({
-    required dynamic netdata,
+    required dynamic netData,
     Map<String, dynamic>? response,
-    String? reqmsg,
+    String? reqMsg,
   }) {
-    data = netdata;
-    msg = reqmsg;
+    data = netData;
+    msg = reqMsg;
     ok = true;
     if (response != null) {
       this.response = response;
@@ -40,13 +40,17 @@ class HzyNormalResponse {
     ok = false;
   }
 
-  HzyNormalResponse.failureFormResponse({dynamic data}) {
+  HzyNormalResponse.failureFormResponse({
+    dynamic data,
+  }) {
     error = BadResponseException();
     ok = false;
   }
 
-  HzyNormalResponse.failureFromError([HzyNormalExceeption? requeserror]) {
-    error = requeserror ?? UnknownException();
+  HzyNormalResponse.failureFromError([
+    HzyNormalExceeption? requesError,
+  ]) {
+    error = requesError ?? UnknownException();
     ok = false;
   }
 }

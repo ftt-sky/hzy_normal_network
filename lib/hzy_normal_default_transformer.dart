@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:50:41
- * @LastEditors: TT
- * @LastEditTime: 2022-11-28 22:23:25
+ * @LastEditors: TT-hzy 
+ * @LastEditTime: 2024-06-05 15:09:36
  */
 import 'package:dio/dio.dart';
 import 'package:hzy_normal_network/hzy_normal_response.dart';
@@ -13,8 +13,13 @@ import 'package:hzy_normal_network/hzy_normal_transformer.dart';
 ///Http配置.
 class HzyNormalHttpResponeConfig {
   /// constructor.
-  HzyNormalHttpResponeConfig(
-      {this.status, this.code, this.msg, this.data, this.successcode});
+  HzyNormalHttpResponeConfig({
+    this.status,
+    this.code,
+    this.msg,
+    this.data,
+    this.successCode,
+  });
 
   /// BaseResp [String status]字段 key, 默认：status.
   String? status;
@@ -29,15 +34,15 @@ class HzyNormalHttpResponeConfig {
   String? data;
 
   /// 判断请求成功的值
-  int? successcode;
+  int? successCode;
 }
 
 class HzyNormalDefaultTransFormer extends HzyNormalTransFormer {
-  String _statuskey = 'status';
-  String _codekey = "code";
-  String _msgkey = 'msg';
-  String _datakey = "data";
-  int _successcode = 1;
+  String _statusKey = 'status';
+  String _codeKey = "code";
+  String _msgKey = 'msg';
+  String _dataKey = "data";
+  int _successCode = 1;
 
   @override
   HzyNormalResponse parse(Response response) {
@@ -49,28 +54,28 @@ class HzyNormalDefaultTransFormer extends HzyNormalTransFormer {
         errorCode: -1,
       );
     }
-    var status = json[_statuskey];
+    var status = json[_statusKey];
     int code = 0;
     if (status is bool) {
       if (status) {
         code = 1;
       }
     } else {
-      if (status == _successcode) {
+      if (status == _successCode) {
         code = 1;
       }
     }
     if (code == 1) {
       return HzyNormalResponse.success(
-        netdata: json[_datakey],
+        netData: json[_dataKey],
         response: json,
-        reqmsg: json[_msgkey],
+        reqMsg: json[_msgKey],
       );
     }
     return HzyNormalResponse.fail(
-      errorMsg: (json[_msgkey] != null) ? json[_msgkey] : "",
+      errorMsg: (json[_msgKey] != null) ? json[_msgKey] : "",
       errorCode: code,
-      data: json[_datakey] ?? json,
+      data: json[_dataKey] ?? json,
     );
   }
 
@@ -78,11 +83,11 @@ class HzyNormalDefaultTransFormer extends HzyNormalTransFormer {
   setHttpConfig({
     required HzyNormalHttpResponeConfig config,
   }) {
-    _statuskey = config.status ?? _statuskey;
-    _datakey = config.data ?? _datakey;
-    _msgkey = config.msg ?? _msgkey;
-    _codekey = config.code ?? _codekey;
-    _successcode = config.successcode ?? _successcode;
+    _statusKey = config.status ?? _statusKey;
+    _dataKey = config.data ?? _dataKey;
+    _msgKey = config.msg ?? _msgKey;
+    _codeKey = config.code ?? _codeKey;
+    _successCode = config.successCode ?? _successCode;
   }
 
   /// 单例对象
