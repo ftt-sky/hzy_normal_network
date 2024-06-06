@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:47:37
- * @LastEditors: TT
- * @LastEditTime: 2023-09-13 15:31:39
+ * @LastEditors: TT-hzy 
+ * @LastEditTime: 2024-06-06 15:03:20
  */
 
 import 'dart:io';
@@ -36,6 +36,7 @@ HzyNormalResponse handleResponse({
       UnauthorisedException(
         message: "没有权限",
         code: response.statusCode,
+        data: response.data,
       ),
     );
   }

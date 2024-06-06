@@ -4,7 +4,7 @@
  * @Author: TT
  * @Date: 2022-11-08 10:28:04
  * @LastEditors: TT-hzy 
- * @LastEditTime: 2024-06-05 15:10:24
+ * @LastEditTime: 2024-06-06 15:00:01
  */
 
 class HzyNormalExceeption {
@@ -60,9 +60,11 @@ class NetworkException extends HzyNormalExceeption {
 
 /// 401
 class UnauthorisedException extends HzyNormalExceeption {
+  dynamic data;
   UnauthorisedException({
     String? message,
     int? code = 401,
+    this.data,
   }) : super(message);
 }
 
