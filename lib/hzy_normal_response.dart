@@ -3,8 +3,8 @@
  * @version: 
  * @Author: TT
  * @Date: 2022-11-08 10:26:14
- * @LastEditors: TT-hzy 
- * @LastEditTime: 2024-06-05 15:19:01
+ * @LastEditors: TT-hzy
+ * @LastEditTime: 2024-08-11 13:30:51
  */
 
 import 'package:hzy_normal_network/hzy_normal_exception.dart';
@@ -19,7 +19,7 @@ class HzyNormalResponse {
   HzyNormalResponse.success({
     required dynamic netData,
     Map<String, dynamic>? response,
-    required String reqMsg,
+    String reqMsg = "请求成功",
   }) {
     data = netData;
     msg = reqMsg;
