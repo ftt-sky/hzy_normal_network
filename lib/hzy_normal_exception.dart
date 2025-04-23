@@ -41,14 +41,14 @@ class BadServiceException extends HzyNormalExceeption {
 
 class UnknownException extends HzyNormalExceeption {
   UnknownException([
-    String? message,
-  ]) : super(message);
+    super.message,
+  ]);
 }
 
 class CancelException extends HzyNormalExceeption {
   CancelException([
-    String? message,
-  ]) : super(message);
+    super.message,
+  ]);
 }
 
 class NetworkException extends HzyNormalExceeption {

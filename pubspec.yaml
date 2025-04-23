@@ -1,10 +1,10 @@
 name: hzy_normal_network
 description: 火之夜网络请求封装库
-version: 0.0.1
+version: 0.0.2
 homepage: https://gitee.com/tengteng_fan/hzy_normal_network.git
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: ">=2.17.6 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
@@ -14,5 +14,5 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
 flutter:
