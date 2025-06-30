@@ -265,9 +265,9 @@ rollback_version() {
 # 回滚 Git 提交
 rollback_git_changes() {
     local commit_count=$1
-    if [ $commit_count -gt 0 ]; then
+    if [ "$commit_count" -gt 0 ]; then
         print_warning "回滚最近 $commit_count 个提交"
-        git reset --hard HEAD~$commit_count
+        git reset --hard "HEAD~${commit_count}"
     fi
 }
 
@@ -412,10 +412,13 @@ main() {
         fi
     fi
 
+    # 设置发布到官方 pub.dev
+    export PUB_HOSTED_URL=https://pub.dev
+    
     # 发布到 pub.dev（在推送和创建标签之前）
     publish_result=0
     publish_to_pub || publish_result=$?
-
+    
     if [ $publish_result -eq 1 ]; then
         # 发布失败，触发回滚
         cleanup_on_error

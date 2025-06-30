@@ -87,7 +87,7 @@ publish.bat
 
 ## 配置 pub.dev 认证
 
-首次发布前，需要配置 pub.dev 认证：
+脚本已配置为直接发布到官方 pub.dev。在首次发布前，需要配置 pub.dev 认证：
 
 ```bash
 # 登录 pub.dev 账户
@@ -97,7 +97,7 @@ flutter pub login
 dart pub login
 ```
 
-按照提示完成认证流程。
+按照提示完成认证流程。脚本会自动设置 `PUB_HOSTED_URL=https://pub.dev` 确保发布到官方仓库。
 
 ## 常见问题
 

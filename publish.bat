@@ -387,17 +387,20 @@ if exist "%CHANGELOG_FILE%" (
     if not errorlevel 1 set /a commits_made+=1
 )
 
-REM 发布到 pub.dev（在推送和创建标签之前）
-call :publish_to_pub
-set "publish_result=%errorlevel%"
-
-if %publish_result% equ 1 (
-    REM 发布失败，触发回滚
-    call :cleanup_on_error
-) else if %publish_result% equ 2 (
-    REM 用户取消发布，触发回滚
-    call :cleanup_on_error
-)
+REM 设置发布到官方 pub.dev
+ set "PUB_HOSTED_URL=https://pub.dev"
+ 
+ REM 发布到 pub.dev（在推送和创建标签之前）
+ call :publish_to_pub
+ set "publish_result=%errorlevel%"
+ 
+ if %publish_result% equ 1 (
+     REM 发布失败，触发回滚
+     call :cleanup_on_error
+ ) else if %publish_result% equ 2 (
+     REM 用户取消发布，触发回滚
+     call :cleanup_on_error
+ )
 
 REM 发布成功后才推送更改和创建标签
 call :print_info "发布成功，推送更改到远程仓库..."
