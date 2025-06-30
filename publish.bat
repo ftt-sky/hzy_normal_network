@@ -220,7 +220,7 @@ call :print_warning "即将发布到 pub.dev，请确认:"
 set /p "confirm=是否继续发布? (y/N): "
 
 if /i "%confirm%"=="y" (
-    flutter pub publish
+    flutter packages pub publish --server=https://pub.dartlang.org
     if errorlevel 1 (
         call :print_error "发布失败"
         exit /b 1
