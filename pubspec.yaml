@@ -1,6 +1,6 @@
 name: hzy_normal_network
 description: 火之夜网络请求封装库
-version: 0.0.3
+version: 0.0.4
 homepage: https://gitee.com/tengteng_fan/hzy_normal_network.git
 
 environment:
