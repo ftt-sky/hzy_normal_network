@@ -1,3 +1,12 @@
+## [0.0.4] - 2025-06-30
+
+- chore: bump version to 0.0.4
+- fix(publish): 修正flutter pub发布命令使用完整路径
+- docs: update changelog for version 0.0.3
+- chore: bump version to 0.0.3
+- docs: 更新发布指南和变更日志，添加官方 pub.dev 发布支持
+- feat: 改进发布脚本，支持智能测试检查和错误回滚机制
+
 ## [0.0.3] - 2025-06-30
 
 - chore: bump version to 0.0.3
