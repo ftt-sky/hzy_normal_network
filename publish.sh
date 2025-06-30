@@ -138,20 +138,32 @@ generate_changelog() {
     temp_file=$(mktemp)
 
     # 写入新的更新日志条目
-    echo "## [$version] - $date" >"$temp_file"
-    echo "" >>"$temp_file"
-    echo -e "$commits" >>"$temp_file"
-    echo "" >>"$temp_file"
-
+    # echo "## [$version] - $date" >"$temp_file"
+    # echo "" >>"$temp_file"
+    # echo -e "$commits" >>"$temp_file"
+    # echo "" >>"$temp_file"
+    {
+        echo "## [$version] - $date"
+        echo ""
+        echo -e "$commits"
+        echo ""
+    } >>"$temp_file"
     # 如果 CHANGELOG.md 存在，则合并内容
     if [ -f "$CHANGELOG_FILE" ]; then
         cat "$CHANGELOG_FILE" >>"$temp_file"
     else
         # 创建新的 CHANGELOG.md
-        echo "# 更新日志" >>"$temp_file"
-        echo "" >>"$temp_file"
-        echo "本文档记录了项目的所有重要更改。" >>"$temp_file"
-        echo "" >>"$temp_file"
+        # echo "# 更新日志" >>"$temp_file"
+        # echo "" >>"$temp_file"
+        # echo "本文档记录了项目的所有重要更改。" >>"$temp_file"
+        # echo "" >>"$temp_file"
+
+        {
+            echo "# 更新日志"
+            echo ""
+            echo "本文档记录了项目的所有重要更改。"
+            echo ""
+        } >>"$temp_file"
     fi
 
     # 替换原文件
@@ -196,28 +208,32 @@ publish_to_pub() {
     # 检查是否安装了 Flutter
     if ! command -v flutter &>/dev/null; then
         print_error "Flutter 未安装或不在 PATH 中"
-        exit 1
+        return 1
     fi
 
-    # 运行测试
-    print_info "运行测试..."
-    flutter test || {
-        print_error "测试失败，发布中止"
-        exit 1
-    }
+    # 运行测试（如果测试目录存在）
+    if [ -d "test" ] && [ "$(ls -A test 2>/dev/null)" ]; then
+        print_info "运行测试..."
+        flutter test || {
+            print_error "测试失败，发布中止"
+            return 1
+        }
+    else
+        print_warning "未找到测试目录或测试目录为空，跳过测试"
+    fi
 
     # 分析代码
     print_info "分析代码..."
     flutter analyze || {
         print_error "代码分析失败，发布中止"
-        exit 1
+        return 1
     }
 
     # 检查发布前的状态
     print_info "检查发布状态..."
     flutter pub publish --dry-run || {
         print_error "发布预检查失败"
-        exit 1
+        return 1
     }
 
     # 确认发布
@@ -227,24 +243,53 @@ publish_to_pub() {
     echo
 
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        flutter pub publish
+        flutter pub publish || {
+            print_error "发布失败"
+            return 1
+        }
         print_success "发布完成！"
+        return 0
     else
         print_info "发布已取消"
-        exit 0
+        return 2
+    fi
+}
+
+# 回滚版本号
+rollback_version() {
+    local original_version=$1
+    print_warning "回滚版本号到: $original_version"
+    update_pubspec_version "$original_version"
+}
+
+# 回滚 Git 提交
+rollback_git_changes() {
+    local commit_count=$1
+    if [ $commit_count -gt 0 ]; then
+        print_warning "回滚最近 $commit_count 个提交"
+        git reset --hard HEAD~$commit_count
+    fi
+}
+
+# 删除本地标签
+delete_local_tag() {
+    local tag_name=$1
+    if git tag -l | grep -q "^$tag_name$"; then
+        print_warning "删除本地标签: $tag_name"
+        git tag -d "$tag_name"
     fi
 }
 
 # 主函数
 main() {
-    print_info "开始 hzy_normal_network 发布流程..."
+    print_info "开始 Flutter 包发布流程..."
 
     # 切换到项目目录
     cd "$PROJECT_DIR"
 
     # 检查必要文件
     if [ ! -f "$PUBSPEC_FILE" ]; then
-        print_error "未找到 pubspec.yaml 文件"
+        print_error "未找到 pubspec.yaml 文件，请确保在 Flutter 项目根目录中运行此脚本"
         exit 1
     fi
 
@@ -307,6 +352,45 @@ main() {
     # 检查 Git 状态
     check_git_status
 
+    # 记录初始状态
+    local initial_version=$current_version
+    local commits_made=0
+    local tag_created=false
+    local tag_pushed=false
+    local tag_name="v$new_version"
+
+    # 错误处理函数
+    cleanup_on_error() {
+        print_error "发布过程中出现错误，开始回滚..."
+
+        # 如果推送了标签，尝试删除远程标签
+        if [ "$tag_pushed" = true ]; then
+            print_warning "删除远程标签: $tag_name"
+            git push origin ":refs/tags/$tag_name" 2>/dev/null || true
+        fi
+
+        # 删除本地标签
+        if [ "$tag_created" = true ]; then
+            delete_local_tag "$tag_name"
+        fi
+
+        # 回滚 Git 提交
+        if [ $commits_made -gt 0 ]; then
+            rollback_git_changes $commits_made
+        fi
+
+        # 回滚版本号
+        if [ "$new_version" != "$initial_version" ]; then
+            rollback_version "$initial_version"
+        fi
+
+        print_error "回滚完成，项目已恢复到发布前状态"
+        exit 1
+    }
+
+    # 设置错误陷阱
+    trap cleanup_on_error ERR
+
     # 更新版本号（如果需要）
     if [ "$new_version" != "$current_version" ]; then
         update_pubspec_version "$new_version"
@@ -314,6 +398,7 @@ main() {
         # 提交版本号更改
         git add "$PUBSPEC_FILE"
         git commit -m "chore: bump version to $new_version"
+        commits_made=$((commits_made + 1))
     fi
 
     # 生成更新日志
@@ -322,19 +407,36 @@ main() {
     # 提交更新日志
     if [ -f "$CHANGELOG_FILE" ]; then
         git add "$CHANGELOG_FILE"
-        git commit -m "docs: update changelog for version $new_version" || true
+        if git commit -m "docs: update changelog for version $new_version" 2>/dev/null; then
+            commits_made=$((commits_made + 1))
+        fi
     fi
 
-    # 推送更改
-    print_info "推送更改到远程仓库..."
+    # 发布到 pub.dev（在推送和创建标签之前）
+    publish_result=0
+    publish_to_pub || publish_result=$?
+
+    if [ $publish_result -eq 1 ]; then
+        # 发布失败，触发回滚
+        cleanup_on_error
+    elif [ $publish_result -eq 2 ]; then
+        # 用户取消发布，触发回滚
+        cleanup_on_error
+    fi
+
+    # 发布成功后才推送更改和创建标签
+    print_info "发布成功，推送更改到远程仓库..."
     git push origin "$(git branch --show-current)"
 
     # 创建并推送标签
     create_git_tag "$new_version"
-    push_tag "$new_version"
+    tag_created=true
 
-    # 发布到 pub.dev
-    publish_to_pub
+    push_tag "$new_version"
+    tag_pushed=true
+
+    # 取消错误陷阱
+    trap - ERR
 
     print_success "🎉 版本 $new_version 发布完成！"
     print_info "标签: v$new_version"

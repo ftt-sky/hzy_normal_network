@@ -181,12 +181,21 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM 运行测试
-call :print_info "运行测试..."
-flutter test
-if errorlevel 1 (
-    call :print_error "测试失败，发布中止"
-    exit /b 1
+REM 运行测试（如果测试目录存在）
+if exist "test" (
+    dir /b "test" >nul 2>&1
+    if not errorlevel 1 (
+        call :print_info "运行测试..."
+        flutter test
+        if errorlevel 1 (
+            call :print_error "测试失败，发布中止"
+            exit /b 1
+        )
+    ) else (
+        call :print_warning "测试目录为空，跳过测试"
+    )
+) else (
+    call :print_warning "未找到测试目录，跳过测试"
 )
 
 REM 分析代码
@@ -212,23 +221,82 @@ set /p "confirm=是否继续发布? (y/N): "
 
 if /i "%confirm%"=="y" (
     flutter pub publish
+    if errorlevel 1 (
+        call :print_error "发布失败"
+        exit /b 1
+    )
     call :print_success "发布完成！"
+    exit /b 0
 ) else (
     call :print_info "发布已取消"
-    exit /b 0
+    exit /b 2
 )
 goto :eof
 
+REM 回滚版本号
+:rollback_version
+set "original_version=%~1"
+call :print_warning "回滚版本号到: %original_version%"
+call :update_pubspec_version %original_version%
+goto :eof
+
+REM 回滚 Git 提交
+:rollback_git_changes
+set "commit_count=%~1"
+if %commit_count% gtr 0 (
+    call :print_warning "回滚最近 %commit_count% 个提交"
+    git reset --hard HEAD~%commit_count%
+)
+goto :eof
+
+REM 删除本地标签
+:delete_local_tag
+set "tag_name=%~1"
+git tag -l | findstr /x "%tag_name%" >nul
+if not errorlevel 1 (
+    call :print_warning "删除本地标签: %tag_name%"
+    git tag -d "%tag_name%"
+)
+goto :eof
+
+REM 错误清理函数
+:cleanup_on_error
+call :print_error "发布过程中出现错误，开始回滚..."
+
+REM 如果推送了标签，尝试删除远程标签
+if "%tag_pushed%"=="true" (
+    call :print_warning "删除远程标签: %tag_name%"
+    git push origin ":refs/tags/%tag_name%" 2>nul
+)
+
+REM 删除本地标签
+if "%tag_created%"=="true" (
+    call :delete_local_tag "%tag_name%"
+)
+
+REM 回滚 Git 提交
+if %commits_made% gtr 0 (
+    call :rollback_git_changes %commits_made%
+)
+
+REM 回滚版本号
+if not "%TARGET_VERSION%"=="%initial_version%" (
+    call :rollback_version "%initial_version%"
+)
+
+call :print_error "回滚完成，项目已恢复到发布前状态"
+exit /b 1
+
 REM 主函数
 :main
-call :print_info "开始 hzy_normal_network 发布流程..."
+call :print_info "开始 Flutter 包发布流程..."
 
 REM 切换到项目目录
 cd /d "%PROJECT_DIR%"
 
 REM 检查必要文件
 if not exist "%PUBSPEC_FILE%" (
-    call :print_error "未找到 pubspec.yaml 文件"
+    call :print_error "未找到 pubspec.yaml 文件，请确保在 Flutter 项目根目录中运行此脚本"
     exit /b 1
 )
 
@@ -266,6 +334,11 @@ if "%choice%"=="1" (
     set "TARGET_VERSION=%NEW_VERSION%"
 ) else if "%choice%"=="4" (
     set /p "TARGET_VERSION=请输入新版本号 (格式: x.y.z): "
+    echo %TARGET_VERSION% | findstr /r "^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$" >nul
+    if errorlevel 1 (
+        call :print_error "版本号格式无效"
+        exit /b 1
+    )
 ) else if "%choice%"=="5" (
     set "TARGET_VERSION=%CURRENT_VERSION%"
 ) else (
@@ -287,6 +360,13 @@ if /i not "%continue%"=="y" (
 REM 检查 Git 状态
 call :check_git_status
 
+REM 记录初始状态
+set "initial_version=%CURRENT_VERSION%"
+set "commits_made=0"
+set "tag_created=false"
+set "tag_pushed=false"
+set "tag_name=v%TARGET_VERSION%"
+
 REM 更新版本号（如果需要）
 if not "%TARGET_VERSION%"=="%CURRENT_VERSION%" (
     call :update_pubspec_version %TARGET_VERSION%
@@ -294,6 +374,7 @@ if not "%TARGET_VERSION%"=="%CURRENT_VERSION%" (
     REM 提交版本号更改
     git add "%PUBSPEC_FILE%"
     git commit -m "chore: bump version to %TARGET_VERSION%"
+    if not errorlevel 1 set /a commits_made+=1
 )
 
 REM 生成更新日志
@@ -303,19 +384,35 @@ REM 提交更新日志
 if exist "%CHANGELOG_FILE%" (
     git add "%CHANGELOG_FILE%"
     git commit -m "docs: update changelog for version %TARGET_VERSION%" 2>nul
+    if not errorlevel 1 set /a commits_made+=1
 )
 
-REM 推送更改
-call :print_info "推送更改到远程仓库..."
+REM 发布到 pub.dev（在推送和创建标签之前）
+call :publish_to_pub
+set "publish_result=%errorlevel%"
+
+if %publish_result% equ 1 (
+    REM 发布失败，触发回滚
+    call :cleanup_on_error
+) else if %publish_result% equ 2 (
+    REM 用户取消发布，触发回滚
+    call :cleanup_on_error
+)
+
+REM 发布成功后才推送更改和创建标签
+call :print_info "发布成功，推送更改到远程仓库..."
 for /f "delims=" %%i in ('git branch --show-current') do set "current_branch=%%i"
 git push origin %current_branch%
+if errorlevel 1 call :cleanup_on_error
 
 REM 创建并推送标签
 call :create_git_tag %TARGET_VERSION%
-call :push_tag %TARGET_VERSION%
+if errorlevel 1 call :cleanup_on_error
+set "tag_created=true"
 
-REM 发布到 pub.dev
-call :publish_to_pub
+call :push_tag %TARGET_VERSION%
+if errorlevel 1 call :cleanup_on_error
+set "tag_pushed=true"
 
 call :print_success "🎉 版本 %TARGET_VERSION% 发布完成！"
 call :print_info "标签: v%TARGET_VERSION%"
