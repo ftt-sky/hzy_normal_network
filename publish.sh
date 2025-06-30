@@ -243,7 +243,7 @@ publish_to_pub() {
     echo
 
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        flutter pub publish || {
+        flutter packages pub publish --server=https://pub.dartlang.org || {
             print_error "发布失败"
             return 1
         }
@@ -414,11 +414,11 @@ main() {
 
     # 设置发布到官方 pub.dev
     export PUB_HOSTED_URL=https://pub.dev
-    
+
     # 发布到 pub.dev（在推送和创建标签之前）
     publish_result=0
     publish_to_pub || publish_result=$?
-    
+
     if [ $publish_result -eq 1 ]; then
         # 发布失败，触发回滚
         cleanup_on_error
